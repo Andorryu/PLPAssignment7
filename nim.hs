@@ -40,7 +40,23 @@ promptPlayer player = do
     rowChoice <- getLine
     putStr "Stars to remove: "
     starChoice <- getLine
+    putChar '\n'
     return (read rowChoice, read starChoice)
+
+valid :: Board -> (Int, Int) -> Bool
+valid board choices = (board !! (fst choices - 1) >= snd choices) -- need to check if row number is invalid
+
+-- remove num of spaces from num row of board
+changeBoard :: Board -> (Int, Int) -> Int -> Board
+changeBoard (x:xs) choices index =
+    if index == fst choices - 1
+    then (x - snd choices) : xs
+    else x : changeBoard xs choices (index + 1)
+
+changePlayer :: Int -> Int
+changePlayer 1 = 2
+changePlayer 2 = 1
+changePlayer _ = 0
 
 play :: Board -> Int -> IO()
 play board player = do
@@ -51,8 +67,14 @@ play board player = do
     if checkGameOver board
     then do displayGameOver player
     else do
-        let
-            choices = do promptPlayer player
+        choices <- promptPlayer player
+        if valid board choices
+        then do 
+            putStrLn "VALID CHOICE"
+            play (changeBoard board choices 0) (changePlayer player)
+        else do 
+            putStrLn "INVALID CHOICE"
+            play board player
 
 nim :: IO()
 nim = play initial 1
