@@ -44,10 +44,11 @@ promptPlayer player = do
     return (read rowChoice, read starChoice)
 
 valid :: Board -> (Int, Int) -> Bool
-valid board choices = (board !! (fst choices - 1) >= snd choices) -- need to check if row number is invalid
+valid board choices = (fst choices >= 1 && fst choices <= 5) && (board !! (fst choices - 1) >= snd choices)
 
 -- remove num of spaces from num row of board
 changeBoard :: Board -> (Int, Int) -> Int -> Board
+changeBoard [] _ _ = []
 changeBoard (x:xs) choices index =
     if index == fst choices - 1
     then (x - snd choices) : xs
